@@ -70,12 +70,14 @@ def proxPasso(matrizDist, matrizFeromonios, verticeAtual, verticesJaPassados, a,
 #Agora uma função para simular o caminho que uma formiga irá fazer
 #ou seja iteração de "passos" da função anterior até ela ter que voltar para o seu inicio
 
-def caminho(matrizDist, matrizFeromonios, verticeInicial):
+#Peso padrão das arestas será "1", tenderá para escolha de arestas menores
+def caminho(matrizDist, matrizFeromonios, verticeInicial, pesoFeromonios):
     #Ela deverá escolher vertices até todos os vertices serem escolhidos
     verticesRestantes = len(matrizDist)
     verticeAtual = verticeInicial
     distanciaCaminho = 0
     verticesJaPassados = []
+    caminho = [verticeInicial]
 
     for i in range(verticesRestantes):
         if i == verticeInicial:
@@ -85,14 +87,28 @@ def caminho(matrizDist, matrizFeromonios, verticeInicial):
     
     while(verticesRestantes != 1):
         verticeAntigo = verticeAtual
-        verticeAtual = proxPasso(matrizDist, matrizFeromonios, verticeAtual, verticesJaPassados, 1, 1)
+        verticeAtual = proxPasso(matrizDist, matrizFeromonios, verticeAtual, verticesJaPassados, 1, pesoFeromonios)
+        
         #Atualizar vertices passados
+        caminho.append(verticeAtual)
         verticesJaPassados[verticeAtual] = True
         distanciaCaminho += matrizDist[verticeAntigo][verticeAtual]
         verticesRestantes += -1
     
-    print(distanciaCaminho)
-    print(verticeAtual)
+    #Voltar para vertice original
+    distanciaCaminho += matrizDist[verticeAtual][verticeInicial]
+    
+    #Atualizar feromonios nas arestas em que a formiga passou
+    
+    valorFeromonio = 1/distanciaCaminho
+    for i in range(len(caminho)):
+        if(i < len(caminho) - 1):
+            matrizFeromonios[caminho[i]][caminho[i + 1]] += valorFeromonio
+        else:
+            matrizFeromonios[caminho[i]][verticeInicial] += valorFeromonio
+    
+    #Retornar matriz de feromonios atualizada
+    return matrizFeromonios
 
 
-caminho(matrizInput, matrizFeromonios, 0)
+caminho(matrizInput, matrizFeromonios, 0, 1.5)
