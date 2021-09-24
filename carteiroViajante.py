@@ -14,17 +14,14 @@ matrizInput = [
     [4.7, 16.4, 12.2, 5.5, 4.0, 0]
 ]
 
-matrizFeromonios = [
-    [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
-    [0, 0, 0, 0, 0, 0],
+matrizFeromoniosInput = [
+    [0, 1, 1, 1, 1, 1],
+    [1, 0, 1, 1, 1, 1],
+    [1, 1, 0, 1, 1, 1],
+    [1, 1, 1, 0, 1, 1],
+    [1, 1, 1, 1, 0, 1],
+    [1, 1, 1, 1, 1, 0],
 ]
-
-#Para cada formiga guardar quais vertices já foram percorridos
-verticesJaPassados = [True, False, False, False, False, False]
 
 def proxPasso(matrizDist, matrizFeromonios, verticeAtual, verticesJaPassados, a, b):
     #Dado um vertice a escolha do próximo vertice para uma formiga vai ser calculado por uma probabilidade
@@ -69,7 +66,7 @@ def proxPasso(matrizDist, matrizFeromonios, verticeAtual, verticesJaPassados, a,
 #Agora uma função para simular o caminho que uma formiga irá fazer
 #ou seja iteração de "passos" da função anterior até ela ter que voltar para o seu inicio
 
-#Peso padrão das arestas será "1", tenderá para escolha de arestas menores se o peso dos feromonios também for igual a 1
+#Se o peso "alfa" for igual ao peso dos feromonios, o metodo será parecido a um metodo guloso comum
 def caminho(matrizDist, matrizFeromonios, verticeInicial, pesoAlfa, pesoFeromonios):
     #Ela deverá escolher vertices até todos os vertices serem escolhidos
     verticesRestantes = len(matrizDist)
@@ -110,8 +107,6 @@ def caminho(matrizDist, matrizFeromonios, verticeInicial, pesoAlfa, pesoFeromoni
     return matrizFeromonios
 
 
-# caminho(matrizInput, matrizFeromonios, 0, 1.5)
-
 #Agora uma função para fazer a iteração de n formigas, ou seja aplicação n vezes da função anterior
 #para tentar obter um caminho bom
 #Após as n iterações, uma ultima formiga elegerá qual o caminho final baseado apenas na quantidade de feromonios presente nele
@@ -132,11 +127,11 @@ def colonia(matrizDist, matrizFeromoniosInicial, verticeInicial, quantidadeDeFor
 
     for i in range(len(matrizDist)):
         #Decidindo melhor vizinho
-        melhorVizinho = matrizFeromonios[verticeAtual][verticeAtual]
+        melhorVizinho = matrizFeromoniosInicial[verticeAtual][verticeAtual]
         proxVertice = verticeAtual
         for j in range(len(matrizDist[verticeAtual])):
             if not listaVerticesPassados[j]:
-                arestaAtual = matrizFeromonios[verticeAtual][j]
+                arestaAtual = matrizFeromoniosInicial[verticeAtual][j]
                 if(arestaAtual > melhorVizinho):
                     melhorVizinho = arestaAtual
                     proxVertice = j
@@ -144,6 +139,7 @@ def colonia(matrizDist, matrizFeromoniosInicial, verticeInicial, quantidadeDeFor
         if i < len(matrizDist) - 1:
             distCaminhoFinal += matrizDist[verticeAtual][proxVertice]
             verticeAtual = proxVertice
+            listaVerticesPassados[proxVertice] = True
             caminhoFinal.append(proxVertice)     
         else:
             caminhoFinal.append(verticeInicial)
@@ -153,6 +149,6 @@ def colonia(matrizDist, matrizFeromoniosInicial, verticeInicial, quantidadeDeFor
     print(distCaminhoFinal)
     
 
-colonia(matrizInput, matrizFeromonios, 0, 10000, 1, 4)
+colonia(matrizInput, matrizFeromoniosInput, 0, 10000, 0.2, 1)
 
 #Com 10000 iterações e os pesos apresentados, as formigas tendem ao caminho [5, 4, 3, 1, 2, 0] com distancia 44.0
